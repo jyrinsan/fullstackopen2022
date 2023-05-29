@@ -1,32 +1,27 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
+import axios from 'axios'
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { 
-      name: 'Arto Hellas',
-      number: '040-1231244' 
-    },
-    { 
-      name: 'Aamu Aurinko',
-      number: '050-331898' 
-    },
-    { 
-      name: 'Ilta Rusko',
-      number: '044-78-12345' 
-    },
-    { 
-      name: 'Noora Nörtti',
-      number: '0430-565656' 
-    },
-  ]) 
+  const [persons, setPersons] = useState([]) 
   const [filteredPersons, setFilteredPersons] = useState(persons)
 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+
+  useEffect(() => {
+    console.log('effect')
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        console.log('promise fulfilled')
+        setPersons(response.data)
+        filterPersons(response.data, '')
+      })
+  }, [])
   
   const addPerson = (event) => {
     event.preventDefault()
@@ -57,9 +52,13 @@ const App = () => {
   }
 
   const filterPersons = (persons, filter) => {
-    setFilteredPersons(persons.map(person => 
-      person.name.toUpperCase().includes(filter.toUpperCase()) ? person : ''))
-  }
+    if (filter.length > 0) {
+      setFilteredPersons(persons.filter(person => 
+        person.name.toUpperCase().includes(filter.toUpperCase())))
+    } else {
+      setFilteredPersons(persons)
+    }
+    }
 
   return (
     <div>
